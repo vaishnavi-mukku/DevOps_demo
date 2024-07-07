@@ -1,0 +1,19 @@
+name: Run Script Workflow
+
+on:
+  push:
+    branches:
+      - feature/test
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest  # Specify the operating system for the job
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # Action to checkout the repository's code
+
+    - name: Run script
+      run: |
+        chmod +x Roles/role.sh  # Ensure script is executable
+        Roles/role.sh  # Replace with the path to your script
