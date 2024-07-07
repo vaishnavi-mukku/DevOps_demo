@@ -11,6 +11,8 @@ EMAIL_ID="vaishnavi2000m@gmail.com"
 
 #!/bin/bash
 
+gcloud auth login
+
 # Set project
 gcloud config set project ${PROJECT_ID}
 
