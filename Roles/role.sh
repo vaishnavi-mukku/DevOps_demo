@@ -13,6 +13,8 @@ EMAIL_ID="vaishnavi2000m@gmail.com"
 
 gcloud auth login
 
+gcloud config set account vaishnavi2000m@gmail.com
+
 # Set project
 gcloud config set project ${PROJECT_ID}
 
