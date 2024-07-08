@@ -9,7 +9,7 @@ ENVIRONMENT_NAME="composer-test"
 AIRFLOW_API_BASE_URL="https://composer.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/${LOCATION}/environments/${ENVIRONMENT_NAME}/services/airflow/api/v1"
 
 # Replace with your service account credentials
-export SERVICE_ACCOUNT_KEY="${GCP_SERVICE_ACCOUNT_KEY}"
+export SERVICE_ACCOUNT_KEY="C:/Users/vaish/Downloads/flowing-digit-394109-0947541f75eb.json""
 
 # Function to create a role
 create_role() {
