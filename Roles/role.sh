@@ -10,7 +10,6 @@ ROLE_NAME="custom_viewer"
 EMAIL_ID="vaishnavi2000m@gmail.com"
 
 # Authenticate and configure gcloud
-gcloud auth login
 gcloud config set project ${PROJECT_ID}
 
 # Get the Airflow URI
