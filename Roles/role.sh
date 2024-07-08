@@ -1,53 +1,38 @@
 #!/bin/bash
 
-# Set project ID and service account key
-export PROJECT_ID="${{ secrets.GCP_PROJECT_ID }}"
+# Replace with your Composer environment details
+PROJECT_ID="flowing-digit-394109"
+LOCATION="europe-west4"
+ENVIRONMENT_NAME="composer-test"
+
+# Airflow API endpoint for roles
+AIRFLOW_API_BASE_URL="https://composer.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/${LOCATION}/environments/${ENVIRONMENT_NAME}/services/airflow/api/v1"
+
+# Replace with your service account credentials
 export SERVICE_ACCOUNT_KEY="${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}"
 
-# Install jq
-sudo apt-get install -y jq
+# Function to create a role
+create_role() {
+    local role_name="$1"
+    local endpoint="${AIRFLOW_API_BASE_URL}/roles"
+    local headers=(
+        "-H" "Content-Type: application/json"
+        "-H" "Authorization: Bearer $(gcloud auth application-default print-access-token)"
+    )
+    local data="{\"name\": \"${role_name}\"}"
 
-# Authenticate with Google Cloud
-echo "${SERVICE_ACCOUNT_KEY}" > key.json
-gcloud auth activate-service-account --key-file=key.json
+    # Send POST request to create role
+    response=$(curl -s -X POST "${endpoint}" "${headers[@]}" -d "${data}")
 
-# Set project
-gcloud config set project ${PROJECT_ID}
-
-# Function to log API responses
-log_response() {
-  echo "Response:"
-  echo "$1" | jq .
+    # Check response for success or failure
+    if [[ "$(echo "${response}" | jq -r '.status')" == "success" ]]; then
+        echo "Role '${role_name}' created successfully!"
+    else
+        error_message=$(echo "${response}" | jq -r '.detail')
+        echo "Failed to create role '${role_name}': ${error_message}"
+    fi
 }
 
-# Function to call Airflow API and log response
-call_airflow_api() {
-  local url=$1
-  local method=$2
-  local data=$3
-
-  response=$(curl -s -X ${method} -H "Content-Type: application/json" -d "${data}" ${url})
-  log_response "${response}"
-
-  if [[ $(echo "${response}" | jq -r '.status_code') != "200" ]]; then
-    echo "Error: API call failed with response: ${response}"
-    exit 1
-  fi
-}
-
-# Create custom role
-role_url="https://302b466c397544e5b96832b0c3dce458-dot-europe-west4.composer.googleusercontent.com/auth/fab/v1/roles"
-role_data='{"name": "custom_viewer"}'
-call_airflow_api "${role_url}" "POST" "${role_data}"
-
-# Assign permissions to role
-permission_url="https://302b466c397544e5b96832b0c3dce458-dot-europe-west4.composer.googleusercontent.com/auth/fab/v1/permissions"
-permission_data='{"role_name": "custom_viewer", "permission": "can_read", "view_menu": "Dag"}'
-call_airflow_api "${permission_url}" "POST" "${permission_data}"
-
-# Assign role to user
-user_role_url="https://302b466c397544e5b96832b0c3dce458-dot-europe-west4.composer.googleusercontent.com/auth/fab/v1/users"
-user_role_data='{"username": "your_user", "role": "custom_viewer"}'
-call_airflow_api "${user_role_url}" "POST" "${user_role_data}"
-
-echo "Custom role created and assigned successfully!"
+# Example usage
+role_name="custom_veiwer"
+create_role "${role_name}"
