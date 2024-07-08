@@ -1,19 +1,37 @@
-name: Run Script Workflow
+name: Deploy to Google Cloud
 
 on:
   push:
     branches:
-      - feature/test
+      - main  # Change this to the branch you want to trigger the action on
 
 jobs:
-  run-script:
-    runs-on: ubuntu-latest  # Specify the operating system for the job
+  deploy:
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2  # Action to checkout the repository's code
+      uses: actions/checkout@v2
 
-    - name: Run script
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        version: 'latest'
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+    - name: Authenticate with gcloud
       run: |
-        chmod +x Roles/role.sh  # Ensure script is executable
-        Roles/role.sh  # Replace with the path to your script
+        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > "${{ github.workspace }}/key.json"
+        gcloud auth activate-service-account --key-file="${{ github.workspace }}/key.json"
+
+    - name: Set gcloud project
+      run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Install jq
+      run: sudo apt-get install -y jq
+      
+    - name: Run your script
+      run: |
+        chmod +x Roles/role.sh
+        Roles/role.sh
