@@ -18,12 +18,11 @@ jobs:
       with:
         version: 'latest'
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-    - name: Authenticate with gcloud
-      run: |
-        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > "${{ github.workspace }}/key.json"
-        gcloud auth activate-service-account --key-file="${{ github.workspace }}/key.json"
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
     - name: Set gcloud project
       run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
