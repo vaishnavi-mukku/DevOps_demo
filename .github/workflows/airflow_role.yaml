@@ -3,7 +3,7 @@ name: Deploy to Google Cloud
 on:
   push:
     branches:
-      - main  # Change this to the branch you want to trigger the action on
+      - feature/test  # Change this to the branch you want to trigger the action on
 
 jobs:
   deploy:
@@ -30,7 +30,7 @@ jobs:
 
     - name: Install jq
       run: sudo apt-get install -y jq
-      
+
     - name: Run your script
       run: |
         chmod +x Roles/role.sh
